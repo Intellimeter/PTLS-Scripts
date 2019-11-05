@@ -7,7 +7,7 @@ cd %d%
 set db=ptls
 set logfile=log.txt
 set last_success=from_date.txt
-set pfx=1881 Yonge
+set pfx=[project name]
 set feq=Daily
 set fln=%pfx%_%feq%
 rem set sdate=%date%
@@ -41,17 +41,17 @@ echo INTO OUTFILE ^"%outfile%^" FIELDS TERMINATED BY ',' OPTIONALLY ENCLOSED BY 
 mysql.exe -uroot -pODYSSEY99GRANITE < %sqlfile%
 echo %date%>%last_success%
 echo %date% - from_date.txt updated.> %logfile%
-FOR /F "tokens=* USEBACKQ" %%F IN (`cscript %d%\setup\countRows.vbs %ofile% //nologo`) DO (
+FOR /F "tokens=* USEBACKQ" %%F IN (`cscript %d%\countRows.vbs %ofile% //nologo`) DO (
 SET var=%%F
 )
 
 rem ftp info ip/username/password/path (if not /)
 echo %date% - Data taken from %csvfile% at %date%>> log.txt
-echo open 52.228.42.17> temp.txt
-echo DYNRYTRQFJH>> temp.txt
-echo 6cfQ7vArOJ>> temp.txt
+echo open [ip address/hostname]> temp.txt
+echo [username]>> temp.txt
+echo [password]>> temp.txt
 echo bin>> temp.txt
-echo cd />> temp.txt
+echo cd /[directory path, if not root folder]>> temp.txt
 echo put %outfile%>> temp.txt
 echo quit>> temp.txt
 
