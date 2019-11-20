@@ -1,0 +1,38 @@
+select * from
+(
+(select "Property", "SN", "Channel", "Time", "Utility", "Description", "Value", "Unit") 
+union
+(select "[Property/ProjectName]", a.sn, 1, a.RealReadDate, "Electricity", CONCAT("Ch1-SN",a.sn), a.Ch1 * [multiplier], "kwh" 
+from dials a where a.sn=a.sn=[Serial #] and a.RealReadDate >="[yyyy-mm-dd Start Date] [Start Time hh:mm:ss]" and a.RealReadDate <= "[yyyy-mm-dd End Date] [End Time hh:mm:ss]" 
+group by a.sn, a.ReadDate order by a.sn, a.ReadDate asc)
+union
+(select "[Property/ProjectName]", a.sn, 2, a.RealReadDate, "Electricity", CONCAT("Ch2-SN",a.sn), a.Ch2 * [multiplier], "kwh" 
+from dials a where a.sn=a.sn=[Serial #] and a.RealReadDate >="[yyyy-mm-dd Start Date] [Start Time hh:mm:ss]" and a.RealReadDate <= "[yyyy-mm-dd End Date] [End Time hh:mm:ss]" 
+group by a.sn, a.ReadDate order by a.sn, a.ReadDate asc)
+union
+(select "[Property/ProjectName]", a.sn, 3, a.RealReadDate, "Electricity", CONCAT("Ch3-SN",a.sn), a.Ch3 * [multiplier], "kwh" 
+from dials a where a.sn=a.sn=[Serial #] and a.RealReadDate >="[yyyy-mm-dd Start Date] [Start Time hh:mm:ss]" and a.RealReadDate <= "[yyyy-mm-dd End Date] [End Time hh:mm:ss]" 
+group by a.sn, a.ReadDate order by a.sn, a.ReadDate asc)
+union
+(select "[Property/ProjectName].", a.sn, 4, a.RealReadDate, "Electricity", CONCAT("Ch4-SN",a.sn), a.Ch4 * [multiplier], "kwh" 
+from dials a where a.sn=a.sn=[Serial #] and a.RealReadDate >="[yyyy-mm-dd Start Date] [Start Time hh:mm:ss]" and a.RealReadDate <= "[yyyy-mm-dd End Date] [End Time hh:mm:ss]" 
+group by a.sn, a.ReadDate order by a.sn, a.ReadDate asc)
+union
+(select "[Property/ProjectName]", a.sn, 5, a.RealReadDate, "Electricity", CONCAT("Ch5-SN",a.sn), a.Ch5 * [multiplier], "kwh" 
+from dials a where a.sn=a.sn=[Serial #] and a.RealReadDate >="[yyyy-mm-dd Start Date] [Start Time hh:mm:ss]" and a.RealReadDate <= "[yyyy-mm-dd End Date] [End Time hh:mm:ss]" 
+group by a.sn, a.ReadDate order by a.sn, a.ReadDate asc)
+union
+(select "[Property/ProjectName]", a.sn, 6, a.RealReadDate, "Electricity", CONCAT("Ch6-SN",a.sn), a.Ch6 * [multiplier], "kwh" 
+from dials a where a.sn=a.sn=[Serial #] and a.RealReadDate >="[yyyy-mm-dd Start Date] [Start Time hh:mm:ss]" and a.RealReadDate <= "[yyyy-mm-dd End Date] [End Time hh:mm:ss]"
+group by a.sn, a.ReadDate order by a.sn, a.ReadDate asc)
+union
+(select "[Property/ProjectName]", a.sn, 7, a.RealReadDate, "Electricity", CONCAT("Ch7-SN",a.sn), a.Ch7 * [multiplier], "kwh" 
+from dials a where a.sn=a.sn=[Serial #] and a.RealReadDate >="[yyyy-mm-dd Start Date] [Start Time hh:mm:ss]" and a.RealReadDate <= "[yyyy-mm-dd End Date] [End Time hh:mm:ss]" 
+group by a.sn, a.ReadDate order by a.sn, a.ReadDate asc)
+union
+(select "[Property/ProjectName]", a.sn, 8, a.RealReadDate, "Electricity", CONCAT("Ch8-SN",a.sn), a.Ch8 * [multiplier], "kwh" 
+from dials a where a.sn=[Serial #] and a.RealReadDate >="[yyyy-mm-dd Start Date] [Start Time hh:mm:ss]" and a.RealReadDate <= "[yyyy-mm-dd End Date] [End Time hh:mm:ss]" 
+group by a.sn, a.ReadDate order by a.sn, a.ReadDate asc)
+) 
+as A
+INTO OUTFILE "[File Path]/[Output File Name].csv" FIELDS TERMINATED BY ',' OPTIONALLY ENCLOSED BY '"' LINES TERMINATED BY '\r\n';
