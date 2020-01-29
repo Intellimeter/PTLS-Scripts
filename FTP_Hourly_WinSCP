@@ -1,0 +1,85 @@
+@echo off
+
+For /f "tokens=1-2 delims=/:" %%a in ('time /t') do (set curtime=%%a%%b)
+set d=C:\ptlspg
+set dir=C:/ptlspg
+cd %d%
+set db=ptls
+set logfile=C:\ptlspg\logs\log.txt
+set last_success=C:\ptlspg\setup\from_date.txt
+set pfx=rbc
+set feq=Hourly
+set fln=%pfx%_%feq%
+
+rem set sdate=%date%
+if exist %last_success% (
+set /p sdate=<%last_success%
+) else (
+ echo %date% %time% - from_date.txt file not found! Using today's date. >> %logfile%
+)
+set stime="%sdate%"
+set edate=%date%
+set etime="%edate% %time:~0,2%:00"
+set csvfile=%fln%_%date%_%time:~0,2%00.csv
+set sqlfile=C:\ptlspg\setup\%feq%.sql
+set ofile=C:\ptlspg\csv\%csvfile%
+set outfile="C:/ptlspg/csv/%csvfile%"
+
+echo use %db% ;> %sqlfile%
+echo select * from>>%sqlfile%
+echo ((select "Property", "SN", "Channel", "Time", "Utility", "Description", "Value", "Unit") >>%sqlfile%
+echo union >>%sqlfile%
+echo (select "%pfx%", a.sn, i.chan, a.realreaddate, i.utility, i.descpt, a.tch1 * i.mtpr, i.unit >>%sqlfile%
+echo from accum a, info i where a.sn = i.sn and i.chan = 1 and a.RealReadDate ^>=%stime% and a.RealReadDate ^<=%etime% >>%sqlfile%
+echo group by a.sn, a.readdate order by a.sn, a.readdate asc) >>%sqlfile%
+echo union >>%sqlfile%
+echo (select "%pfx%", a.sn, i.chan, a.realreaddate, i.utility, i.descpt, a.tch2 * i.mtpr, i.unit >>%sqlfile%
+echo from accum a, info i where a.sn = i.sn and i.chan = 2 and a.RealReadDate ^>=%stime% and a.RealReadDate ^<=%etime% >>%sqlfile%
+echo group by a.sn, a.readdate order by a.sn, a.readdate asc) >>%sqlfile%
+echo union >>%sqlfile%
+echo (select "%pfx%", a.sn, i.chan, a.realreaddate, i.utility, i.descpt, a.tch3 * i.mtpr, i.unit >>%sqlfile%
+echo from accum a, info i where a.sn = i.sn and i.chan = 3 and a.RealReadDate ^>=%stime% and a.RealReadDate ^<=%etime% >>%sqlfile%
+echo group by a.sn, a.readdate order by a.sn, a.readdate asc) >>%sqlfile%
+echo union >>%sqlfile%
+echo (select "%pfx%", a.sn, i.chan, a.realreaddate, i.utility, i.descpt, a.tch4 * i.mtpr, i.unit >>%sqlfile%
+echo from accum a, info i where a.sn = i.sn and i.chan = 4 and a.RealReadDate ^>=%stime% and a.RealReadDate ^<=%etime% >>%sqlfile%
+echo group by a.sn, a.readdate order by a.sn, a.readdate asc) >>%sqlfile%
+echo union >>%sqlfile%
+echo (select "%pfx%", a.sn, i.chan, a.realreaddate, i.utility, i.descpt, a.tch5 * i.mtpr, i.unit >>%sqlfile%
+echo from accum a, info i where a.sn = i.sn and i.chan = 5 and a.RealReadDate ^>=%stime% and a.RealReadDate ^<=%etime% >>%sqlfile%
+echo group by a.sn, a.readdate order by a.sn, a.readdate asc) >>%sqlfile%
+echo union >>%sqlfile%
+echo (select "%pfx%", a.sn, i.chan, a.realreaddate, i.utility, i.descpt, a.tch6 * i.mtpr, i.unit >>%sqlfile%
+echo from accum a, info i where a.sn = i.sn and i.chan = 6 and a.RealReadDate ^>=%stime% and a.RealReadDate ^<=%etime% >>%sqlfile%
+echo group by a.sn, a.readdate order by a.sn, a.readdate asc) >>%sqlfile%
+echo union >>%sqlfile%
+echo (select "%pfx%", a.sn, i.chan, a.realreaddate, i.utility, i.descpt, a.tch7 * i.mtpr, i.unit >>%sqlfile%
+echo from accum a, info i where a.sn = i.sn and i.chan = 7 and a.RealReadDate ^>=%stime% and a.RealReadDate ^<=%etime% >>%sqlfile%
+echo group by a.sn, a.readdate order by a.sn, a.readdate asc) >>%sqlfile%
+echo union >>%sqlfile%
+echo (select "%pfx%", a.sn, i.chan, a.realreaddate, i.utility, i.descpt, a.tch8 * i.mtpr, i.unit >>%sqlfile%
+echo from accum a, info i where a.sn = i.sn and i.chan = 8 and a.RealReadDate ^>=%stime% and a.RealReadDate ^<=%etime% >>%sqlfile%
+echo group by a.sn, a.readdate order by a.sn, a.readdate asc)) A >>%sqlfile%
+echo INTO OUTFILE %outfile% FIELDS TERMINATED BY ',' OPTIONALLY ENCLOSED BY '^"' LINES TERMINATED BY '\r\n';>>%sqlfile%
+mysql.exe -uroot -pODYSSEY99GRANITE ptls < %sqlfile%
+echo %date% %time:~0,2%:00>%last_success%
+echo %date% %time% - from_date.txt updated.>> %logfile%
+FOR /F "tokens=* USEBACKQ" %%F IN (`cscript %d%\setup\countRows.vbs %ofile% //nologo`) DO (
+SET var=%%F
+)
+
+echo %date% %time% - Data taken from %csvfile% at %date%>> %logfile%
+
+echo open sftp://intellimeter@sftp1.nantum.io/ -hostkey="ssh-rsa 2048 8O+DvTfjm5dTBY+UIyP0XTwWlJwqGtVNxoWlKxqcsJU=" -privatekey="C:\Users\RBCBASAdmin\.ssh\id_rsa.ppk" -rawsettings AgentFwd=1> temp.txt
+echo put -resumesupport=off -nopreservetime %ofile%>> temp.txt
+echo exit>> temp.txt
+
+winscp.exe /console /script=temp.txt
+
+
+rem Deletes the file
+del temp.txt
+
+echo %date% - %csvfile% sent to sftp1.nantum.io>> "C:\ptlspg\logs\Log.txt" 
+
+:END
