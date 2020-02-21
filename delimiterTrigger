@@ -1,0 +1,26 @@
+/*!40101 SET character_set_client = @saved_cs_client */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = latin1 */ ;
+/*!50003 SET character_set_results = latin1 */ ;
+/*!50003 SET collation_connection  = latin1_swedish_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+/*!50003 CREATE*/ /*!50017 DEFINER=`root`@`localhost`*/ /*!50003 TRIGGER `ins_accum` AFTER INSERT ON `dials` FOR EACH ROW
+  BEGIN
+  IF NEW.RealReadDate > '2010-01-01 00:00:00' THEN
+    UPDATE gross SET ReadDate=NEW.ReadDate, RealReadDate=NEW.RealReadDate, TCh1=NEW.Ch1+TCh1, TCh2=NEW.Ch2+TCh2, TCh3=NEW.Ch3+TCh3, TCh4=NEW.Ch4+TCh4, TCh5=NEW.Ch5+TCh5, TCh6=NEW.Ch6+TCh6, TCh7=NEW.Ch7+TCh7, TCh8=NEW.Ch8+TCh8 WHERE ReadDate < NEW.ReadDate AND SN=NEW.SN ; 
+    select row_count() into @rowcount1;
+    if @rowcount1 < 1 then
+      insert into gross( sn, readdate, realreaddate, tch1, tch2, tch3, tch4, tch5, tch6, tch7, tch8, LastRead, mLastRead) value (new.sn, new.readdate, new.realreaddate, new.ch1, new.ch2, new.ch3, new.ch4, new.ch5, new.ch6, new.ch7, new.ch8, '2010-1-1 00:00:00', '2010-1-1 00:00:00') ;
+    end if;
+    INSERT INTO accum SELECT SN, ReadDate, RealReadDate, TCh1, TCh2, TCh3, TCh4, TCh5, TCh6, TCh7, TCh8 FROM gross WHERE SN=NEW.SN ;
+  END IF ;
+END */;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
