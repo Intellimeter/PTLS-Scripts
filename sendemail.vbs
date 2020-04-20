@@ -12,8 +12,8 @@ Set oFile = objFSO.OpenTextFile (errTxtFile,8,True)
 '***********
 '****CONFIGURE THE FROM EMAIL ADDRESS AND PASSWORD
 
-Const fromEmail	= "dcu@intellimeter.ca"
-Const password	= "ici315s01"
+Const fromEmail	= "your email"
+Const password	= "your password"
 
 '****END OF CONFIGURATION
 '***********
