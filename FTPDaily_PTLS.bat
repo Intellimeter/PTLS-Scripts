@@ -68,7 +68,7 @@ SET var=%%F
 
 
 echo %date% - Data taken from %csvfile% at %date%>> "C:\ptlspg\logs\Log.txt"
-echo open 52.228.42.17> temp.txt
+echo open [your_ftp_IP]> temp.txt
 echo [username]>> temp.txt
 echo [password]>> temp.txt
 echo bin>> temp.txt
@@ -79,5 +79,5 @@ rem Start FTP command with script
 ftp -s:temp.txt
 rem Deletes the file
 del temp.txt
-echo %date% - %csvfile% sent to ftp://52.228.42.17/>> "C:\ptlspg\logs\Log.txt"
+echo %date% - %csvfile% sent to ftp://[your_ftp_IP]/>> "C:\ptlspg\logs\Log.txt"
 :END
